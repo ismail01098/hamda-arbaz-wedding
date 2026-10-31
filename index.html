@@ -354,11 +354,9 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
 </head>
 <body class="nojs">
 <noscript><style>.intro{display:none}</style></noscript>
-<div class="proto">WITH THE BLESSINGS OF THEIR FAMILIES</div>
 
 <div class="intro" id="intro" role="dialog" aria-label="Invitation envelope">
   <div class="door l"></div><div class="door r"></div><div class="frame"></div>
-  <button class="skip" id="skip" type="button">Skip</button>
   <div class="stage">
     <p class="crest" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
     <div class="env">
@@ -517,7 +515,6 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
   window.addEventListener('pagehide',function(){if(fadeTimer){clearInterval(fadeTimer);fadeTimer=null}music.pause()});
   window.addEventListener('beforeunload',function(){music.pause()});
   updateMusicControl();
-  function finish(){intro.classList.add('done');b.classList.add('go')}
   function open(){
     if(opened)return;startMusic(.72);opened=true;intro.classList.add('open');
     if(reduce){setTimeout(finish,150);return}
@@ -525,7 +522,6 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
     setTimeout(function(){intro.classList.add('done')},2900);
   }
   seal.addEventListener('click',open);
-  document.getElementById('skip').addEventListener('click',function(){startMusic(.72);opened=true;finish()});
   var els=document.querySelectorAll('.rv');
   if('IntersectionObserver' in window&&!reduce){
     var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.15});
