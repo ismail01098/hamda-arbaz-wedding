@@ -72,9 +72,9 @@ body.go .petals i{animation-play-state:running}
 /* hero */
 main{position:relative;z-index:1;max-width:34rem;margin:0 auto;padding:0 1.5rem 5rem}
 .hero{min-height:calc(100svh - 2rem);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3rem 0;position:relative}
-.mandala{position:absolute;width:min(130vw,640px);aspect-ratio:1;left:50%;top:50%;margin:calc(min(130vw,640px)/-2) 0 0 calc(min(130vw,640px)/-2);opacity:.28;
+.mandala{position:absolute;width:min(130vw,640px);aspect-ratio:1;left:50%;top:50%;margin:0;transform:translate(-50%,-50%);transform-origin:center center;opacity:.28;
   animation:spin 90s linear infinite;pointer-events:none}
-@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 .hero>*:not(.mandala){position:relative}
 .arch{width:min(70vw,260px);aspect-ratio:3/4;border-radius:999px 999px 8px 8px;border:2px solid var(--gold2);padding:6px;margin-bottom:2rem;
   clip-path:inset(100% 0 0 0);transition:clip-path 1.4s var(--ease) .2s}
@@ -132,7 +132,7 @@ input,select{min-height:50px;padding:0 .9rem;border:1px solid var(--line);border
 .lowperf .hero>.lamp,.lowperf .hero>.sp,.lowperf .stars,.lowperf .pal .w,
 .lowperf .goldtext,.lowperf .card h3,.lowperf .scroll{animation:none!important}
 .lowperf .petals{display:none}
-.lowperf .mandala{transform:none!important}
+.lowperf .mandala{transform:translate(-50%,-50%)!important}
 .lowperf .goldtext,.lowperf .card h3{background-position:50% 0}
 .hero::before{content:"";position:absolute;width:min(90vw,420px);aspect-ratio:1;left:50%;top:38%;margin-left:calc(min(90vw,420px)/-2);background:radial-gradient(circle,rgba(243,217,139,.24),transparent 65%);animation:glow 4s ease-in-out infinite;pointer-events:none}
 @keyframes glow{50%{transform:scale(1.18);opacity:.6}}
@@ -506,6 +506,11 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
   }catch(err){/* Some browsers reject play() synchronously. */}
   music.addEventListener('play',updateMusicControl);
   music.addEventListener('pause',updateMusicControl);
+  /* If audible autoplay is blocked, the visitor's first tap anywhere unlocks playback. */
+  document.addEventListener('pointerdown',function(event){
+    if(musicControl.contains(event.target))return;
+    startMusic(opened ? .72 : .18);
+  },{once:true,capture:true});
   musicControl.addEventListener('click',function(){
     if(music.paused)startMusic(opened ? .72 : .18);
     else{if(fadeTimer){clearInterval(fadeTimer);fadeTimer=null}music.pause()}
