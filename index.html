@@ -35,10 +35,10 @@ button,input,select{font:inherit;color:inherit}
 .door.l{left:0;border-right:2px solid var(--gold2)}.door.r{right:0;border-left:2px solid var(--gold2)}
 .intro.split .door.l{transform:translateX(-101%)}.intro.split .door.r{transform:translateX(101%)}
 .stage{position:absolute;inset:0;z-index:3;display:grid;place-content:center;justify-items:center;text-align:center;perspective:1100px;
-  padding:1.5rem 1.25rem;transition:opacity .85s cubic-bezier(.22,.7,.2,1)}
+  padding:1.5rem 1.25rem;transition:opacity 1.35s cubic-bezier(.65,0,.25,1)}
 .intro.split .stage{opacity:0}
 .crest{font:700 1.65rem/1.5 var(--arabic);letter-spacing:0;color:var(--gold1);margin:0 0 1.6rem;text-shadow:0 1px 12px rgba(255,230,160,.12);animation:rise 1s var(--ease) both}
-.env{position:relative;aspect-ratio:3/2;width:min(86vw,380px);animation:rise 1s var(--ease) .2s both;transition:opacity .8s ease 1s,transform 1.05s var(--ease) .85s,filter .8s ease 1s;will-change:opacity,transform,filter}
+.env{position:relative;aspect-ratio:3/2;width:min(86vw,380px);animation:rise 1s var(--ease) .2s both;transition:opacity .9s var(--ease) .65s,transform 1.05s var(--ease) .65s,filter .95s var(--ease) .65s;will-change:opacity,transform,filter}
 .env>*{position:absolute;inset:0}
 .back{background:linear-gradient(145deg,#14040A,#2E0813);border-radius:6px;box-shadow:0 24px 70px rgba(0,0,0,.7),0 0 50px rgba(213,168,74,.08)}
 .paper{inset:6% 7% 14%;background:linear-gradient(#F6E9D2,#E7D3AC);border-radius:3px;display:grid;place-items:center;color:#4A1420;
@@ -48,18 +48,17 @@ button,input,select{font:inherit;color:inherit}
   transition:transform .8s var(--ease);will-change:transform;backface-visibility:hidden}
 .seal{position:absolute;z-index:5;left:50%;top:58%;width:68px;height:68px;margin:-34px 0 0 -34px;border-radius:50%;border:0;cursor:pointer;
   background:radial-gradient(circle at 35% 30%,#F7E3A1,#C99A3C 55%,#8A6A2B);color:#3A0F18;font:700 1.4rem var(--disp);
-  display:grid;place-items:center;transition:opacity .3s,transform .3s var(--ease);box-shadow:0 0 28px rgba(255,218,139,.28),inset 0 0 12px rgba(255,255,255,.15)}
+  display:grid;place-items:center;transition:opacity .95s var(--ease),transform 1.05s var(--ease),filter .95s var(--ease);will-change:opacity,transform,filter;box-shadow:0 0 28px rgba(255,218,139,.28),inset 0 0 12px rgba(255,255,255,.15)}
 .seal::after{content:"";position:absolute;inset:-4px;border:2px solid var(--gold1);border-radius:50%;animation:ring 2s ease-out infinite}
 @keyframes ring{from{transform:scale(1);opacity:.8}to{transform:scale(1.7);opacity:0}}
 .hint{margin:1.6rem 0 0;color:var(--muted);font:italic 500 1.1rem var(--body);animation:rise 1s var(--ease) .5s both}
 .skip{position:absolute;z-index:6;right:1rem;top:calc(.75rem + env(safe-area-inset-top,0px));background:none;border:1px solid var(--line);
   color:var(--muted);border-radius:999px;min-height:44px;padding:0 1.1rem;cursor:pointer;font:400 .9rem var(--head)}
 .intro.open .flap{transform:rotateX(180deg);transition-duration:1s}
-.intro.open .seal{opacity:0;transform:scale(.55);filter:blur(5px);pointer-events:none;transition:opacity .55s ease,transform .7s var(--ease),filter .55s ease}
+.intro.open .seal{opacity:0;transform:scale(.72);filter:blur(9px);pointer-events:none;transition:opacity .95s var(--ease),transform 1.05s var(--ease),filter .95s var(--ease)}
 .intro.open .paper{transform:translateY(-40%);transition-duration:1.05s}
-.intro.open .env{opacity:0;transform:translateY(-22px) scale(1.035);filter:blur(7px)}
-.intro.open .crest{opacity:0;transform:translateY(-14px);filter:blur(5px);transition:opacity .65s ease,transform .8s var(--ease),filter .65s ease}
-.intro.open .hint{opacity:0;transform:translateY(12px);filter:blur(4px);animation:none;transition:opacity .55s ease,transform .7s var(--ease),filter .55s ease}
+.intro.open .env{opacity:0;transform:translateY(-26px) scale(1.025);filter:blur(9px)}
+.intro.open .hint{opacity:0;transform:translateY(14px);filter:blur(7px);animation:none;transition:opacity .9s var(--ease),transform 1s var(--ease),filter .9s var(--ease)}
 @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
 /* petals */
@@ -360,7 +359,6 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
 <div class="intro" id="intro" role="dialog" aria-label="Invitation envelope">
   <div class="door l"></div><div class="door r"></div><div class="frame"></div>
   <div class="stage">
-    <p class="crest" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
     <div class="env">
       <div class="back"></div>
       <div class="paper"><span>Hamda &amp; Arbaz</span></div>
