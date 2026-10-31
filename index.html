@@ -120,6 +120,20 @@ input,select{min-height:50px;padding:0 .9rem;border:1px solid var(--line);border
 .burst{position:absolute;z-index:6;left:50%;top:58%;width:7px;height:7px;border-radius:50%;background:var(--gold1);box-shadow:0 0 8px var(--gold1);animation:burst .95s ease-out forwards}
 @keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
 .prog{position:fixed;z-index:61;left:0;right:0;top:env(safe-area-inset-top,0px);height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left}
+/* background music */
+.music-control{position:fixed;z-index:62;right:calc(1rem + env(safe-area-inset-right,0px));bottom:calc(1rem + env(safe-area-inset-bottom,0px));
+  width:46px;height:46px;border:1px solid var(--gold2);border-radius:50%;display:grid;place-items:center;
+  background:rgba(24,5,12,.88);color:var(--gold1);font:600 1.05rem var(--head);cursor:pointer;
+  box-shadow:0 4px 18px rgba(0,0,0,.35);-webkit-tap-highlight-color:transparent}
+.music-control:focus-visible{outline:2px solid var(--gold1);outline-offset:3px}
+@media (max-width:600px){.music-control{right:calc(.8rem + env(safe-area-inset-right,0px));bottom:calc(.8rem + env(safe-area-inset-bottom,0px));width:44px;height:44px}}
+/* Keep decorative motion lighter on modest devices without changing the layout. */
+.lowperf .mandala,.lowperf .scene::before,.lowperf .stage::before,.lowperf .hero::before,
+.lowperf .hero>.lamp,.lowperf .hero>.sp,.lowperf .stars,.lowperf .pal .w,
+.lowperf .goldtext,.lowperf .card h3,.lowperf .scroll{animation:none!important}
+.lowperf .petals{display:none}
+.lowperf .mandala{transform:none!important}
+.lowperf .goldtext,.lowperf .card h3{background-position:50% 0}
 .hero::before{content:"";position:absolute;width:min(90vw,420px);aspect-ratio:1;left:50%;top:38%;margin-left:calc(min(90vw,420px)/-2);background:radial-gradient(circle,rgba(243,217,139,.24),transparent 65%);animation:glow 4s ease-in-out infinite;pointer-events:none}
 @keyframes glow{50%{transform:scale(1.18);opacity:.6}}
 .hero>.lamp{position:absolute;top:0;width:2px;height:clamp(70px,16vh,130px);background:linear-gradient(var(--gold3),var(--gold1));transform-origin:top;animation:sway 4s ease-in-out infinite alternate}
@@ -358,6 +372,8 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
   </div>
 </div>
 
+<audio id="weddingMusic" src="wedding-music.mp3" preload="metadata" loop playsinline></audio>
+<button class="music-control" id="musicControl" type="button" aria-label="Play background music" aria-pressed="false" title="Play background music">♪</button>
 <div class="prog" id="prog" aria-hidden="true"></div>
 <div class="scene" aria-hidden="true">
   <div class="stars" id="ly1"></div><div class="moon" id="ly2"></div>
@@ -450,20 +466,62 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
       el.appendChild(wd);if(k<t.split(' ').length-1)el.appendChild(document.createTextNode(' '));
     });
   });
+  var lowPerf=(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4)||(navigator.deviceMemory&&navigator.deviceMemory<=4);
+  if(lowPerf)b.classList.add('lowperf');
   var p=document.getElementById('petals');
-  for(var n=0;n<12;n++){var e=document.createElement('i');
+  for(var n=0;n<(lowPerf?5:12);n++){var e=document.createElement('i');
     e.style.setProperty('--x',(n*8.5+Math.random()*6)+'%');e.style.setProperty('--d',(9+Math.random()*7)+'s');
     e.style.setProperty('--t',(-Math.random()*10)+'s');e.style.setProperty('--s',(Math.random()*80-40)+'px');p.appendChild(e)}
   var intro=document.getElementById('intro'),seal=document.getElementById('seal'),opened=false;
+  var music=document.getElementById('weddingMusic'),musicControl=document.getElementById('musicControl'),fadeTimer=null;
+  music.volume=.18;
+  function updateMusicControl(){
+    var playing=!music.paused&&!music.ended;
+    musicControl.textContent=playing?'Ⅱ':'♪';
+    musicControl.setAttribute('aria-label',playing?'Pause background music':'Play background music');
+    musicControl.setAttribute('title',playing?'Pause background music':'Play background music');
+    musicControl.setAttribute('aria-pressed',playing?'true':'false');
+  }
+  function fadeMusic(target){
+    if(fadeTimer)clearInterval(fadeTimer);
+    var start=music.volume,steps=18,step=0;
+    fadeTimer=setInterval(function(){
+      step++;
+      music.volume=Math.max(0,Math.min(1,start+(target-start)*(step/steps)));
+      if(step>=steps){clearInterval(fadeTimer);fadeTimer=null;music.volume=target}
+    },50);
+  }
+  function startMusic(target){
+    if(!music.paused){fadeMusic(target);return}
+    var playResult;
+    try{playResult=music.play()}catch(err){return}
+    if(playResult&&typeof playResult.then==='function'){
+      playResult.then(function(){fadeMusic(target);updateMusicControl()}).catch(function(){/* Autoplay or playback may be blocked; the page remains usable. */});
+    }else{fadeMusic(target)}
+  }
+  /* Best-effort muted-by-policy-safe autoplay attempt at the requested low volume. */
+  try{
+    var autoPlayResult=music.play();
+    if(autoPlayResult&&typeof autoPlayResult.catch==='function')autoPlayResult.catch(function(){/* Wait for the visitor's first gesture. */});
+  }catch(err){/* Some browsers reject play() synchronously. */}
+  music.addEventListener('play',updateMusicControl);
+  music.addEventListener('pause',updateMusicControl);
+  musicControl.addEventListener('click',function(){
+    if(music.paused)startMusic(opened ? .72 : .18);
+    else{if(fadeTimer){clearInterval(fadeTimer);fadeTimer=null}music.pause()}
+  });
+  window.addEventListener('pagehide',function(){if(fadeTimer){clearInterval(fadeTimer);fadeTimer=null}music.pause()});
+  window.addEventListener('beforeunload',function(){music.pause()});
+  updateMusicControl();
   function finish(){intro.classList.add('done');b.classList.add('go')}
   function open(){
-    if(opened)return;opened=true;intro.classList.add('open');
+    if(opened)return;startMusic(.72);opened=true;intro.classList.add('open');
     if(reduce){setTimeout(finish,150);return}
     setTimeout(function(){intro.classList.add('split');b.classList.add('go')},1700);
     setTimeout(function(){intro.classList.add('done')},2900);
   }
   seal.addEventListener('click',open);
-  document.getElementById('skip').addEventListener('click',function(){opened=true;finish()});
+  document.getElementById('skip').addEventListener('click',function(){startMusic(.72);opened=true;finish()});
   var els=document.querySelectorAll('.rv');
   if('IntersectionObserver' in window&&!reduce){
     var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.15});
@@ -472,7 +530,7 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
   var d0=document.querySelector('.div');
   document.querySelectorAll('i.dv').forEach(function(i){i.replaceWith(d0.cloneNode(true))});
   var hero=document.querySelector('.hero');
-  for(var q=0;q<16;q++){var sp=document.createElement('i');sp.className='sp';sp.setAttribute('aria-hidden','true');
+  for(var q=0;q<(lowPerf?6:16);q++){var sp=document.createElement('i');sp.className='sp';sp.setAttribute('aria-hidden','true');
     sp.style.left=(6+Math.random()*88)+'%';sp.style.top=(8+Math.random()*80)+'%';
     sp.style.setProperty('--d',(2+Math.random()*3)+'s');sp.style.setProperty('--t',(-Math.random()*4)+'s');hero.appendChild(sp)}
   seal.addEventListener('click',function(){
@@ -484,7 +542,7 @@ section.s::before{content:"";position:absolute;z-index:-1;top:1.5rem;bottom:0;le
   var prog=document.getElementById('prog'),tick=false;
   addEventListener('scroll',function(){if(tick)return;tick=true;requestAnimationFrame(function(){
     var h=document.documentElement.scrollHeight-innerHeight;prog.style.transform='scaleX('+(h>0?Math.min(1,scrollY/h):0)+')';tick=false})},{passive:true});
-  if(!reduce){
+  if(!reduce&&!lowPerf){
     var l1=document.getElementById('ly1'),l2=document.getElementById('ly2'),l3=document.getElementById('ly3'),sx=0,tx=0,busy=false,hr=document.querySelector('.arch');
     function par(){busy=false;
       l1.style.transform='translate3d('+tx*-6+'px,'+sx*-.03+'px,0)';
